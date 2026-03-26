@@ -1,0 +1,46 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: zone-service
+          uri: lb://zone-service
+          predicates:
+            - Path=/api/zones/**
+
+        - id: sensor-service
+          uri: lb://sensor-service
+          predicates:
+            - Path=/api/sensors/**
+
+        - id: automation-service
+          uri: lb://automation-service
+          predicates:
+            - Path=/api/automation/**
+
+        - id: crop-service
+          uri: lb://crop-service
+          predicates:
+            - Path=/api/crops/**
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG

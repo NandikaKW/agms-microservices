@@ -1,0 +1,21 @@
+# Crop Inventory Service Configuration
+server:
+  port: 8084
+
+spring:
+  application:
+    name: crop-service
+  datasource:
+    url: jdbc:mysql://localhost:3306/AGMS_Db?createDatabaseIfNotExist=true
+    username: root
+    password: Ijse@1234
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/

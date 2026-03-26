@@ -1,0 +1,228 @@
+Graduate Diploma in Software Engineering
+ITS 2018 – Software Architectures & Design Patterns II
+Final Examination Assignment
+Automated Greenhouse Management System - Microservice-Based Application
+Total Marks: 100
+Automated Greenhouse Management System (AGMS)
+Microservice-Based Application
+Learning Outcomes
+By completing this assignment, students will be able to:
+● Architect Distributed Systems: Design and implement a microservices architecture using Spring Boot
+and Spring Cloud.
+● Implement Service Discovery: Utilize Netflix Eureka for dynamic service registration and discovery.
+● Master API Routing: Configure Spring Cloud Gateway as a single entry point for all external client
+requests.
+● Secure Microservices: Implement JWT (JSON Web Token) authorization at the Gateway level to protect
+internal APIs.
+● Implement Inter-Service Communication: Use OpenFeign for synchronous HTTP communication
+between microservices.
+● Manage Configuration: Use Spring Cloud Config to externalize and centralize application properties via a
+Git repository.
+Business Scenario
+Background
+Modern agriculture demands high precision to maximize crop yield and resource efficiency. Traditional
+greenhouse management is heavily manual, making it inherently error-prone and labor-intensive. Fluctuations in
+climate can go unnoticed, leading to crop failure.
+Proposed Solution
+The Automated Greenhouse Management System (AGMS) is a cloud-native, microservice-based platform.
+Instead of building physical hardware, your system will connect to a Live External IoT Data Provider API.
+Your microservices must fetch live telemetry (acting as a digital Thermo-Hygrometer), process it using a custom
+rule engine, and trigger automated actions to maintain ideal growing conditions.
+Key Stakeholders
+● Farmers: End users who define "Zones" and ideal environment thresholds.
+● Sensors: External IoT devices providing real-time environmental data (Temperature/Humidity).
+Business Objectives
+● Allow farmers to define distinct "Zones" (e.g., Tomato Zone, Orchid Zone).
+● Ingest simulated sensor data in real-time from an external provider.
+● Automatically trigger actions based on rules (e.g., If Temp > 32°C, Turn Fan ON).
+● Track crop inventory and growth lifecycle status.
+Key Technologies & Tools
+● Spring Boot: Core framework for building production-ready microservices with minimal configuration.
+● Spring Cloud Eureka: Service registry for dynamic registration and discovery of all microservices.
+● Spring Cloud Config: Centralized configuration management to externalize properties for the distributed
+system.
+● Spring Cloud Gateway: API Gateway serving as a single-entry point to route client requests to backend
+services.
+● OpenFeign / RestTemplate: Tools used for synchronous inter-service communication and making HTTP
+calls between services.
+● Spring Web: Provides RESTful API development capabilities within the Spring Boot ecosystem.
+● Node.js (Express) / Python (Flask): Optional lightweight frameworks allowed for specific services like
+Sensor simulation.
+● Postman: Essential tool for testing, debugging, and validating API endpoints across the system.
+Live External IoT Data Provider Service (Reactive WebFlux)
+Do Not Implement - Existing API
+The External IoT Service acts as the remote hardware layer for the greenhouse, providing live environmental
+monitoring. To ensure high performance and avoid thread blocking under heavy data loads, all interactions are
+handled using the Spring WebFlux stack.
+Core Specifications
+● Base URL: http://104.211.95.241:8080/api
+● API Documentation: Postman Documentation Link
+● Communication Protocol: RESTful HTTP / JSON
+● Security: JWT-based (Bearer Token)
+● Architecture Pattern: Non-blocking I/O using Mono and Flux.
+Authentication & Identity APIs
+Your microservices must manage authentication reactively. Before fetching telemetry, the system must obtain a
+secure session and handle token persistence.
+Register
+POST /auth/register
+Payload:
+{
+"username": "username",
+"password": "123456"
+}
+Login
+POST /auth/login
+Payload:
+{
+"username": "username",
+"password": "123456"
+}
+Refresh token
+POST /auth/refresh
+Payload:
+{
+"refreshToken": "login-response-refresh-token"
+}
+Device & Telemetry Workflow
+Note: All requests below require the header: Authorization: Bearer <accessToken>
+Add new device
+POST /devices
+AUTHORIZATION
+Payload:
+{
+"name": "Lab-Temp-Sensor",
+"zoneId": "Zone-A" // your zone id
+}
+Get all devices
+GET /devices
+AUTHORIZATION
+Response:
+[ {
+"deviceId": "b751b8c9-644a-484c-ba3f-be63f9b27ad0",
+"name": "Lab-Temp-Sensor",
+"zoneId": "Zone-A",
+"userId": "8252d1c6-4fd2-4ca9-bb74-394ca1ef2830",
+"createAt": "2026-02-22T08:27:21.059681Z"
+}]
+Get device telemetry
+GET devices/telemetry/device-id
+AUTHORIZATION
+Response
+{
+"deviceId": "b751b8c9-644a-484c-ba3f-be63f9b27ad0",
+"zoneId": "Zone-A",
+"value": {
+"temperature": 23.81,
+"tempUnit": "CELSIUS",
+"humidity": 55.09,
+"humidityUnit": "PERCENTAGE"
+},
+"capturedAt": "2026-02-22T08:31:39.752045800Z"
+}
+Microservices Architecture
+To successfully complete this assignment, you must design and implement a distributed system comprising both
+Infrastructure Services and Domain Microservices.
+Technology & Database Flexibility: While the infrastructure services (Gateway, Eureka, Config) are based on
+the Spring Cloud ecosystem, you have the full freedom to choose the technology stack for the four domain
+microservices.
+● Frameworks: You may use Spring Boot (Java), Node.js (Express/NestJS), Python
+(Flask/FastAPI/Django), Go, etc.
+● Databases: You are free to select any suitable Database (e.g., MySQL, PostgreSQL, MongoDB, Redis)
+for each individual service based on its specific data requirements (Polyglot Persistence).
+Infrastructure Services
+● Service Registry (Eureka): Enables services to discover each other without hardcoded URLs. ● API
+Gateway: Routes external requests to the appropriate service (e.g., /api/zones/**) and handles security. ●
+Config Server: Manages external properties for all services in one location.
+Domain Microservices & API Specifications
+Zone Management Service (Port: 8081)
+● Manage greenhouse sections and their environmental limits.
+● Business Logic:
+○ Validate that minTemp is strictly less than maxTemp.
+○ External Integration: When POST /api/zones is called, this service must use a HTTP Client to
+talk to the IoT Integration Service to register a new device and store the returned deviceId. ● APIs:
+○ POST /api/zones: Create zone + register device.
+○ GET /api/zones/{id}: Fetch specific zone details.
+○ PUT /api/zones/{id}: Update thresholds.
+○ DELETE /api/zones/{id}: Remove zone.
+Sensor Telemetry Service (Port: 8082)
+● Act as the "Data Bridge" to the external world.
+● Business Logic:
+○ The Fetcher: Create a scheduled task that runs every 10 seconds.
+○ Inside the task: Fetch the latest Temperature/Humidity from the External IoT API (requires the
+Bearer Token).
+○ The Pusher: Immediately send this data to the Automation Service via a POST request.
+● APIs:
+○ GET /api/sensors/latest: Returns the last fetched reading for debug view.
+Automation & Control Service (Port: 8083)
+● The system's "Brain" or "Rule Engine."
+● Business Logic:
+○ Decision Making: Receives data from the Sensor Telemetry Service.
+○ Threshold Fetching: Uses synchronous inter-service communication to ask the Zone Service for the
+specific min/max limits of that zone.
+○ Rule: If currentTemp > maxTemp - Log action "TURN_FAN_ON".
+○ Rule: If currentTemp < minTemp - Log action "TURN_HEATER_ON".
+● APIs:
+○ POST /api/automation/process: Internal endpoint to receive data.
+○ GET /api/automation/logs: List all triggered actions for the farmer to see.
+Crop Inventory Service (Port: 8084)
+● Manage plant lifecycle.
+● Business Logic:
+○ Track batches of crops.
+○ State Machine: State Machine: SEEDLING, VEGETATIVE, HARVESTED
+● APIs:
+○ POST /api/crops: Register new batch.
+○ PUT /api/crops/{id}/status: Update lifecycle stage.
+○ GET /api/crops: View current inventory.
+Security (API Gateway)
+● Objective: Establish a centralized security layer to protect internal microservices from unauthorized access.
+● Requirement: Implement JWT (JSON Web Token) validation within the Spring Cloud Gateway. ●
+Execution:
+○ The Gateway must intercept all incoming external requests and verify the presence of a valid Bearer
+Token in the Authorization header.
+○ Requests with missing, expired, or malformed tokens must be rejected with an appropriate HTTP status
+code (e.g., 401 Unauthorized).
+○ This ensures that domain microservices (Zone, Sensor, Automation, Crop) do not need to handle
+individual authentication logic.
+Centralized Configuration (Spring Cloud Config)
+● Objective: Manage environment-specific properties (database credentials, service URLs, and feature flags)
+from a single source of truth.
+● Requirement: Deploy a standalone Spring Cloud Config Server that manages configuration files for the
+entire distributed system.
+● Execution:
+○ All domain microservices must act as Config Clients, fetching their settings (e.g., application.yml
+or bootstrap.yml) from the Config Server during the startup phase.
+○ This allows for "Cloud Config" capabilities, where settings can be updated in a central repository and
+reflected across services without requiring a full code rebuild.
+Submission & Validation Guidelines
+Git Repository Requirements
+● Repository: Push the entire project to a public GitHub repository with a clean service-based folder structure.
+● Commit History Validation:
+○ Frequency: You must show a clear progression of work through regular commits (e.g., "Initial Setup",
+"Zone Service Impl", "Security Config").
+○ Anti-Plagiarism: A significant gap in commit times followed by a massive "bulk upload" of code will
+be flagged for review. Bulk uploads will result in a 50% mark reduction.
+○ Messages: Use meaningful commit messages that reflect the actual architectural changes made to the
+code.
+Documentation
+● README.md: Include step-by-step instructions on starting the infrastructure (Eureka, Config Server,
+Gateway) before the domain services.
+● Postman Collection: Export your API test collection as a .json file and place it in the root directory. ●
+Eureka Dashboard: Include a screenshot in the docs/ folder showing all registered services with the status
+UP.
+Marking Scheme (100 Marks Total)
+Core Infrastructure & Configuration (20 Marks): Service Discovery (Eureka), Centralized Cloud Config,
+API Gateway Routing
+Domain Microservices Implementation (30 Marks): Zone Management Service, Sensor Telemetry Service,
+Automation & Control Service, Crop Inventory Service:
+Advanced Enterprise Specifications (25 Marks): External IoT Integration, JWT Security at Gateway,
+External API Authentication Handling
+System Integration & Testing (15 Marks):
+End-to-End Data Flow: Seamless inter-service communication demonstrating the full workflow (Sensor
+fetching external data - Automation receiving data - Zone providing thresholds).
+Postman API Collection: Provision of a comprehensive, exported .json file containing all tested API
+endpoints.
+Code Quality & Submission Standards (10 Marks):
+Git Commit History Integrity: Clear progression of work with meaningful commit messages. (Note:
+Bulk uploads will incur a 50% penalty as per guidelines).
+Documentation: Clear README with step-by-step infrastructure startup instructions, and the required
+Eureka dashboard screenshot showing services as 'UP'.
