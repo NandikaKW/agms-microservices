@@ -1,207 +1,247 @@
-# Automated Greenhouse Management System (AGMS)
-## Microservice-Based Application — ITS 2018 Final Examination
+# **Automated Greenhouse Management System (AGMS)**
+
+**Microservice-Based Application — ITS 2018 Final Examination**
 
 ---
 
-## Architecture Overview
+## **📌 Project Overview**
+
+The **Automated Greenhouse Management System (AGMS)** is a cloud-native, microservice-based platform designed to automate greenhouse operations using real-time environmental data.
+
+The system integrates with an **external IoT API** to fetch live telemetry (temperature & humidity), processes it using a rule engine, and triggers automated actions to maintain optimal crop conditions.
+
+---
+
+## **🎯 Key Features**
+
+* Microservices architecture using Spring Boot & Spring Cloud
+* Service discovery using Eureka
+* Centralized configuration via Config Server
+* API Gateway with JWT-based authentication
+* Real-time IoT data integration
+* Automated rule-based decision engine
+* Crop lifecycle management
+
+---
+
+## **🏗️ System Architecture**
 
 ```
                         ┌──────────────────────┐
                         │   Config Server       │
                         │   Port: 8888          │
-                        │   (Native Profile)    │
                         └──────────┬───────────┘
-                                   │ serves config
+                                   │
         ┌──────────────────────────┼──────────────────────────┐
         │                          │                          │
 ┌───────▼───────┐   ┌──────────────▼──────────────┐   ┌───────▼───────┐
 │ Eureka Server │   │      API Gateway            │   │ External IoT  │
 │ Port: 8761    │◄──│      Port: 8080             │   │ API (Live)    │
-│ (Registry)    │   │      (JWT Security)         │   │ 104.211.95.241│
-└───────▲───────┘   └──────────────┬──────────────┘   └───────▲───────┘
-        │ registers                │ routes                    │
-        │                          │                           │
-   ┌────┼──────────┬───────────────┼───────────────┐           │
-   │    │          │               │               │           │
-┌──▼────┴──┐ ┌────▼─────┐ ┌──────▼──────┐ ┌──────▼──────┐    │
-│Zone Svc  │ │Sensor Svc│ │Automation   │ │Crop Service │    │
-│Port:8081 │ │Port:8082 │ │Service 8083 │ │Port: 8084   │    │
-│          │ │          │ │             │ │             │    │
-│ CRUD     │ │ Scheduled│ │ Rule Engine │ │ State       │    │
-│ Zones    │ │ Fetcher  │ │ TURN_FAN_ON │ │ Machine     │    │
-│ minTemp  │ │ every 10s│ │ TURN_HEATER │ │ SEEDLING→   │    │
-│ maxTemp  │ │          │ │             │ │ VEGETATIVE→ │    │
-│          │ │ Pushes──►│ │◄──Feign──►  │ │ HARVESTED   │    │
-│ Registers│ │ to Auto  │ │ to Zone Svc │ │             │    │
-│ Device───┼─┤ Service  │ │             │ │             │    │
-│ via IoT  │ │ Fetches──┼─┼─────────────┼─┼─────────────┼────┘
-│ API      │ │ from IoT │ │             │ │             │
+└───────▲───────┘   └──────────────┬──────────────┘   └───────────────┘
+        │                          │
+   ┌────┼──────────┬───────────────┼───────────────┐
+   │    │          │               │               │
+┌──▼────┴──┐ ┌────▼─────┐ ┌──────▼──────┐ ┌──────▼──────┐
+│Zone Svc  │ │Sensor Svc│ │Automation   │ │Crop Service │
+│Port:8081 │ │Port:8082 │ │Port:8083    │ │Port:8084    │
 └──────────┘ └──────────┘ └─────────────┘ └─────────────┘
 ```
 
-## Technology Stack
+---
 
-| Technology | Purpose |
-|-----------|---------|
-| Spring Boot 3.5.3 | Core framework |
-| Spring Cloud 2025.0.0 | Microservices infrastructure |
-| Spring Cloud Eureka | Service discovery |
-| Spring Cloud Config | Centralized configuration |
-| Spring Cloud Gateway | API routing + JWT security |
-| OpenFeign | Inter-service communication (Automation → Zone) |
-| RestTemplate (@LoadBalanced) | Inter-service communication (Sensor → Automation) |
-| MySQL | Database (AGMS_Db) |
-| JWT (JJWT) | API Gateway security |
-| External IoT API | Live telemetry data |
+## **⚙️ Technology Stack**
 
-## Prerequisites
+| Technology       | Purpose                        |
+| ---------------- | ------------------------------ |
+| Spring Boot      | Microservices development      |
+| Spring Cloud     | Distributed system support     |
+| Eureka           | Service discovery              |
+| Config Server    | Centralized configuration      |
+| API Gateway      | Routing + JWT security         |
+| OpenFeign        | Inter-service communication    |
+| RestTemplate     | Internal service communication |
+| MySQL            | Database                       |
+| JWT              | Authentication                 |
+| External IoT API | Live telemetry                 |
 
-- **Java 21+** (JDK)
-- **Maven 3.9+**
-- **MySQL** (via XAMPP or standalone) — running on port 3306
-- **Postman** — for API testing
+---
 
-## Database Setup
+## **📋 Prerequisites**
 
-1. Start MySQL (via XAMPP Control Panel → Start MySQL)
-2. The database `AGMS_Db` will be created automatically on first startup (`createDatabaseIfNotExist=true`)
-3. Default credentials: `root` / (empty password)
+* Java 21+
+* Maven 3.9+
+* MySQL (XAMPP or standalone)
+* Postman
 
-## Startup Order (CRITICAL)
+---
 
-You **MUST** start services in this exact order. Each service needs the previous ones running.
+## **🗄️ Database Setup**
 
-### Step 1: Config Server
-```bash
-cd ConfigServer
-mvn clean spring-boot:run
-```
-Wait for: `Started CloudConfigApplication in X seconds`
+1. Start MySQL using XAMPP
+2. Default configuration:
 
-### Step 2: Eureka Server
-```bash
-cd Eureka_Sever
-mvn clean spring-boot:run
-```
-Wait for: `Started EurekaServerApplication in X seconds`
+   ```
+   Username: root
+   Password: (empty)
+   ```
+3. Database will be auto-created:
 
-### Step 3: API Gateway
-```bash
-cd Api_Gatway
-mvn clean spring-boot:run
-```
-Wait for: `Started ApiGatewayApplication in X seconds`
+   ```
+   AGMS_Db
+   ```
 
-### Step 4: Domain Services (can start in any order)
-```bash
-# Terminal 4
-cd ZoneService
-mvn clean spring-boot:run
+---
 
-# Terminal 5
-cd SensorService
-mvn clean spring-boot:run
+## **🚀 Running the Application (IMPORTANT)**
 
-# Terminal 6
-cd AutomationService
-mvn clean spring-boot:run
+### ✅ **Option 1: Run All Services (Recommended)**
 
-# Terminal 7
-cd CropService
-mvn clean spring-boot:run
+```powershell
+.\start.ps1
 ```
 
-## Verify Eureka Dashboard
+Wait **2–3 minutes**, then verify:
 
-Open [http://localhost:8761](http://localhost:8761) in your browser. You should see:
+👉 [http://localhost:8761](http://localhost:8761)
 
-| Application | Port | Status |
-|------------|------|--------|
-| CONFIG-SERVER | 8888 | UP |
-| API-GATEWAY | 8080 | UP |
-| ZONE-SERVICE | 8081 | UP |
-| SENSOR-SERVICE | 8082 | UP |
-| AUTOMATION-SERVICE | 8083 | UP |
-| CROP-SERVICE | 8084 | UP |
+---
 
-## API Endpoints (via Gateway - Port 8080)
+### ✅ **Option 2: Run via IntelliJ IDEA (Manual)**
 
-### Zone Management Service
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/zones` | Create zone + register IoT device |
-| GET | `/api/zones/{id}` | Get zone by ID |
-| PUT | `/api/zones/{id}` | Update zone thresholds |
-| DELETE | `/api/zones/{id}` | Delete zone |
+Run services in the **exact order below**:
 
-**Example POST /api/zones:**
-```json
-{
-    "name": "Tomato Zone",
-    "minTemp": 18.0,
-    "maxTemp": 32.0
-}
-```
+1. **Config Server**
+2. **Eureka Server**
+3. **API Gateway**
+4. **Zone Service**
+5. **Sensor Service**
+6. **Automation Service**
+7. **Crop Service**
 
-### Sensor Telemetry Service
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/sensors/latest` | Get last fetched reading |
+---
 
-*Note: Sensor Service automatically fetches data every 10 seconds from the External IoT API and pushes to Automation Service.*
+## **📊 Eureka Dashboard Verification**
 
-### Automation & Control Service
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/automation/process` | Receive sensor data (internal) |
-| GET | `/api/automation/logs` | View triggered actions |
+Open:
+👉 [http://localhost:8761](http://localhost:8761)
 
-### Crop Inventory Service
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/crops` | Register new crop batch |
-| PUT | `/api/crops/{id}/status?status=VEGETATIVE` | Update lifecycle |
-| GET | `/api/crops` | View all crops |
+Expected status:
 
-**Example POST /api/crops:**
-```json
-{
-    "cropName": "Tomato",
-    "zoneId": "Zone-Tomato",
-    "quantity": 200
-}
-```
+| Service            | Port | Status |
+| ------------------ | ---- | ------ |
+| CONFIG-SERVER      | 8888 | UP     |
+| API-GATEWAY        | 8080 | UP     |
+| ZONE-SERVICE       | 8081 | UP     |
+| SENSOR-SERVICE     | 8082 | UP     |
+| AUTOMATION-SERVICE | 8083 | UP     |
+| CROP-SERVICE       | 8084 | UP     |
 
-## External IoT API Integration
+---
 
-- **Base URL**: `http://104.211.95.241:8080/api`
-- **Auth**: JWT-based (Register → Login → Bearer Token)
-- **Zone Service**: Registers devices on zone creation
-- **Sensor Service**: Fetches live telemetry every 10 seconds
+## **🔄 System Workflow (End-to-End)**
 
-## Security (JWT at API Gateway)
+1. Zone Service creates a zone and registers IoT device
+2. Sensor Service fetches live data every 10 seconds
+3. Sensor sends data to Automation Service
+4. Automation Service fetches thresholds from Zone Service
+5. Rule engine triggers actions:
 
-The API Gateway implements JWT validation via `JwtAuthenticationFilter`:
-- All requests must include `Authorization: Bearer <token>` header
-- Requests without valid tokens receive `401 Unauthorized`
-- Public endpoints: `/auth/login`, `/auth/register`
+    * Temp > max → TURN_FAN_ON
+    * Temp < min → TURN_HEATER_ON
+6. Logs stored and available via API
 
-## Postman Collection
+---
 
-Import `postman/agms-postman-collection.json` into Postman for ready-to-use API tests.
+## **🌐 API Endpoints (Gateway - Port 8080)**
 
-## Project Structure
+### **Zone Service**
+
+* POST `/api/zones`
+* GET `/api/zones/{id}`
+* PUT `/api/zones/{id}`
+* DELETE `/api/zones/{id}`
+
+---
+
+### **Sensor Service**
+
+* GET `/api/sensors/latest`
+
+---
+
+### **Automation Service**
+
+* POST `/api/automation/process`
+* GET `/api/automation/logs`
+
+---
+
+### **Crop Service**
+
+* POST `/api/crops`
+* PUT `/api/crops/{id}/status`
+* GET `/api/crops`
+
+---
+
+## **🔐 Security (JWT)**
+
+* Implemented at API Gateway
+* Requires:
+
+  ```
+  Authorization: Bearer <token>
+  ```
+* Invalid/missing token → **401 Unauthorized**
+* Public endpoints:
+
+    * `/auth/login`
+    * `/auth/register`
+
+---
+
+## **🌍 External IoT Integration**
+
+* Base URL:
+
+  ```
+  http://104.211.95.241:8080/api
+  ```
+* Sensor Service fetches live telemetry
+* Zone Service registers devices
+
+---
+
+## **🧪 Testing**
+
+1. Open Postman
+2. Import:
+
+   ```
+   postman/agms-postman-collection.json
+   ```
+3. Test:
+
+    * Direct services (8081–8084)
+    * Gateway (8080 with JWT)
+
+---
+
+## **📁 Project Structure**
 
 ```
 AGMS/
-├── ConfigServer/          # Port 8888 - Centralized Configuration
-├── Eureka_Sever/          # Port 8761 - Service Registry
-├── Api_Gatway/            # Port 8080 - API Gateway + JWT Security
-├── ZoneService/           # Port 8081 - Zone Management
-├── SensorService/         # Port 8082 - Sensor Telemetry Bridge
-├── AutomationService/     # Port 8083 - Rule Engine
-├── CropService/           # Port 8084 - Crop Lifecycle
-├── postman/               # Postman API Collection
-├── docs/                  # Screenshots & Documentation
-└── README.md              # This file
+├── ConfigServer/
+├── Eureka_Server/
+├── Api_Gateway/
+├── ZoneService/
+├── SensorService/
+├── AutomationService/
+├── CropService/
+├── postman/
+├── docs/
+└── README.md
 ```
+
+
+
