@@ -12,9 +12,5 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class SensorReadingDTO {
-    private String deviceId;
-    private String zoneId;
-    private double temperature;
-    private double humidity;
-    private LocalDateTime capturedAt;
+
 }
