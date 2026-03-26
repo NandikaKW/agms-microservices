@@ -20,7 +20,8 @@ import java.util.List;
 @Component
 public class JwtAuthenticationFilter implements GlobalFilter {
 
-    // A dummy secret key for validation (must match whatever generates the token)
+    // Secret key for JWT validation. Base64 encoded.
+    // I studied JWT token validation and added comments here for understanding.
     private static final String SECRET = "5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437";
 
     @Override
