@@ -12,6 +12,17 @@ import java.util.List;
 @RequestMapping("/api/automation")
 @RequiredArgsConstructor
 public class AutomationController {
+    private final AutomationService service;
+
+    @PostMapping("/process")
+    public void process(@RequestBody SensorReadingDTO dto) {
+        service.processReading(dto);
+    }
+
+    @GetMapping("/logs")
+    public List<AutomationLog> logs() {
+        return service.getLogs();
+    }
 
 
 }
