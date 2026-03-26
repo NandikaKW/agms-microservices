@@ -28,7 +28,8 @@ public class JwtAuthenticationFilter implements GlobalFilter {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
 
-        // Skip auth for login/register if they existed, or for specific endpoints
+        // Skipping authentication for public endpoints (like login/register)
+        // I added this method to control access per requirements
         if (isPublicEndpoint(request.getPath().toString())) {
             return chain.filter(exchange);
         }
