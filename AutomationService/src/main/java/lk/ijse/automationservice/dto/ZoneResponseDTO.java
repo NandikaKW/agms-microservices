@@ -10,5 +10,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class ZoneResponseDTO {
+    private int id;
+    private String name;
+    private double minTemp;
+    private double maxTemp;
 
 }
