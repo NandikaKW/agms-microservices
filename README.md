@@ -93,6 +93,7 @@ The system integrates with an **external IoT API** to fetch live telemetry (temp
 ---
 
 ## **🚀 Running the Application (IMPORTANT)**
+Services must be started in the correct order due to dependencies (Config → Eureka → Gateway → Domain Services).
 
 ### ✅ **Option 1: Run All Services (Recommended)**
 
@@ -136,13 +137,15 @@ Expected status:
 | AUTOMATION-SERVICE | 8083 | UP     |
 | CROP-SERVICE       | 8084 | UP     |
 
+**Note:** Eureka Server does not register itself by default, so it will not appear in the service list.
+
 ---
 
 ## **🔄 System Workflow (End-to-End)**
 
 1. Zone Service creates a zone and registers IoT device
 2. Sensor Service fetches live data every 10 seconds
-3. Sensor sends data to Automation Service
+3. Sensor Service sends data to Automation Service
 4. Automation Service fetches thresholds from Zone Service
 5. Rule engine triggers actions:
 
@@ -199,6 +202,7 @@ Expected status:
     * `/auth/register`
 
 ---
+All external requests are validated at the API Gateway, ensuring centralized security without exposing internal microservices.
 
 ## **🌍 External IoT Integration**
 
@@ -241,7 +245,16 @@ AGMS/
 ├── postman/
 ├── docs/
 └── README.md
-```
+---
+
+## ✅ Final Status
+
+- All microservices are running successfully  
+- All services are registered in Eureka (UP status)  
+- External IoT integration is working correctly  
+- JWT security is implemented at API Gateway  
+- End-to-end data flow verified successfully  
+
 
 
 
