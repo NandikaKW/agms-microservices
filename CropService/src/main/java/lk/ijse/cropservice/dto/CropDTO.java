@@ -12,10 +12,5 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class CropDTO {
-    private Long id;
-    private String cropName;
-    private String zoneId;
-    private String status;
-    private int quantity;
-    private LocalDateTime createdDate;
+
 }
