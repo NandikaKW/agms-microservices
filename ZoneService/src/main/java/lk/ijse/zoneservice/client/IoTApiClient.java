@@ -8,26 +8,31 @@ import org.springframework.web.client.RestTemplate;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * IoT API Client - Manages authentication and device operations
- * with the External IoT Data Provider (http://104.211.95.241:8080/api)
- */
+/*
+    This class is used to communicate with the external IoT API.
+    I created this to handle authentication and device-related operations.
+*/
 @Component
 @Slf4j
 public class IoTApiClient {
 
+    // Base URL of the external IoT service
     private static final String BASE_URL = "http://104.211.95.241:8080/api";
+
+    // Simple credentials (used for testing purpose)
     private static final String USERNAME = "agms_user";
     private static final String PASSWORD = "123456";
 
     private final RestTemplate restTemplate = new RestTemplate();
 
+    // Tokens received after login
     private String accessToken;
     private String refreshToken;
 
-    /**
-     * Step 1: Register user with external IoT API
-     */
+    /*
+        First step - register user in IoT API
+        (If already registered, it will give an error but it's okay)
+    */
     public void register() {
         try {
             Map<String, String> payload = new HashMap<>();
@@ -35,15 +40,15 @@ public class IoTApiClient {
             payload.put("password", PASSWORD);
 
             restTemplate.postForObject(BASE_URL + "/auth/register", payload, Map.class);
-            log.info("Registered with External IoT API");
+            log.info("User registered to IoT API");
         } catch (Exception e) {
-            log.warn("Registration may have already been done: {}", e.getMessage());
+            log.warn("User might be already registered: {}", e.getMessage());
         }
     }
 
-    /**
-     * Step 2: Login and obtain access + refresh tokens
-     */
+    /*
+        Second step - login and get tokens
+    */
     public void login() {
         try {
             Map<String, String> payload = new HashMap<>();
@@ -57,16 +62,17 @@ public class IoTApiClient {
             if (response != null) {
                 this.accessToken = (String) response.get("accessToken");
                 this.refreshToken = (String) response.get("refreshToken");
-                log.info("Logged in to External IoT API. Token obtained.");
+                log.info("Login success, tokens received");
             }
         } catch (Exception e) {
-            log.error("Failed to login to External IoT API: {}", e.getMessage());
+            log.error("Login failed: {}", e.getMessage());
         }
     }
 
-    /**
-     * Step 3 (Section 12): Refresh expired access token
-     */
+    /*
+        This method is used when access token expires
+        It will use refresh token to get a new one
+    */
     public void refreshAccessToken() {
         try {
             Map<String, String> payload = new HashMap<>();
@@ -78,11 +84,11 @@ public class IoTApiClient {
 
             if (response != null) {
                 this.accessToken = (String) response.get("accessToken");
-                log.info("Access token refreshed successfully.");
+                log.info("Token refreshed");
             }
         } catch (Exception e) {
-            log.error("Failed to refresh token, re-logging in: {}", e.getMessage());
-            login(); // Fallback: re-login if refresh fails
+            log.error("Refresh failed, trying login again: {}", e.getMessage());
+            login(); // fallback
         }
     }
 
