@@ -9,5 +9,8 @@ import org.springframework.cloud.config.server.EnableConfigServer;
 
 public class CloudConfigApplication {
 
+    public static void main(String[] args) {
+        SpringApplication.run(CloudConfigApplication.class, args);
+    }
 
 }
