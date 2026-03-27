@@ -8,6 +8,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.HashMap;
 import java.util.Map;
 
+
 /*
     This class is used to communicate with the external IoT API.
     I created this to handle authentication and device-related operations.
@@ -92,14 +93,15 @@ public class IoTApiClient {
         }
     }
 
-    /**
-     * Step 4: Register a device with the External IoT API
-     * Returns the deviceId assigned by the IoT platform
-     */
+    /*
+        Register a device in IoT platform
+        Returns deviceId
+    */
     public String registerDevice(String deviceName, String zoneId) {
         ensureAuthenticated();
         try {
             HttpHeaders headers = createAuthHeaders();
+
             Map<String, String> payload = new HashMap<>();
             payload.put("name", deviceName);
             payload.put("zoneId", zoneId);
@@ -112,35 +114,45 @@ public class IoTApiClient {
 
             if (response.getBody() != null) {
                 String deviceId = (String) response.getBody().get("deviceId");
-                log.info("Device registered: {} -> deviceId: {}", deviceName, deviceId);
+                log.info("Device registered successfully: {}", deviceId);
                 return deviceId;
             }
+
         } catch (Exception e) {
-            log.error("Failed to register device: {}", e.getMessage());
-            // Try refreshing token and retry once
+            log.error("Device registration failed: {}", e.getMessage());
+
+            // try again after refreshing token
             try {
                 refreshAccessToken();
+
                 HttpHeaders headers = createAuthHeaders();
+
                 Map<String, String> payload = new HashMap<>();
                 payload.put("name", deviceName);
                 payload.put("zoneId", zoneId);
+
                 HttpEntity<Map<String, String>> entity = new HttpEntity<>(payload, headers);
+
                 @SuppressWarnings("unchecked")
                 ResponseEntity<Map> response = restTemplate.exchange(
                         BASE_URL + "/devices", HttpMethod.POST, entity, Map.class);
+
                 if (response.getBody() != null) {
                     return (String) response.getBody().get("deviceId");
                 }
+
             } catch (Exception ex) {
                 log.error("Retry also failed: {}", ex.getMessage());
             }
         }
-        return "device-" + System.currentTimeMillis(); // Fallback
+
+        // fallback (temporary id)
+        return "device-" + System.currentTimeMillis();
     }
 
-    /**
-     * Step 5: Fetch telemetry for a specific device
-     */
+    /*
+        Get telemetry data from a device
+    */
     @SuppressWarnings("unchecked")
     public Map<String, Object> fetchTelemetry(String deviceId) {
         ensureAuthenticated();
@@ -153,24 +165,32 @@ public class IoTApiClient {
                     HttpMethod.GET, entity, Map.class);
 
             return response.getBody();
+
         } catch (Exception e) {
-            log.error("Failed to fetch telemetry: {}", e.getMessage());
-            // Try refreshing token and retry
+            log.error("Error getting telemetry: {}", e.getMessage());
+
+            // retry after refreshing token
             try {
                 refreshAccessToken();
+
                 HttpHeaders headers = createAuthHeaders();
                 HttpEntity<Void> entity = new HttpEntity<>(headers);
+
                 ResponseEntity<Map> response = restTemplate.exchange(
                         BASE_URL + "/devices/telemetry/" + deviceId,
                         HttpMethod.GET, entity, Map.class);
+
                 return response.getBody();
+
             } catch (Exception ex) {
-                log.error("Retry also failed: {}", ex.getMessage());
+                log.error("Retry failed: {}", ex.getMessage());
             }
         }
+
         return null;
     }
 
+    // Check if already logged in
     private void ensureAuthenticated() {
         if (this.accessToken == null) {
             register();
@@ -178,6 +198,7 @@ public class IoTApiClient {
         }
     }
 
+    // Create headers with token
     private HttpHeaders createAuthHeaders() {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
