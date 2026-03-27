@@ -82,11 +82,13 @@ public class ZoneServiceImpl implements ZoneService {
 
     @Override
     public List<ZoneDTO> getAll() {
+        // Convert all entities to DTO list
         return repo.findAll().stream().map(this::toDTO).toList();
     }
 
     @Override
     public ZoneDTO getById(int id) {
+        // Get one zone by id
         return toDTO(repo.findById(id).orElseThrow(
                 () -> new RuntimeException("Zone not found with id: " + id)
         ));
@@ -94,9 +96,13 @@ public class ZoneServiceImpl implements ZoneService {
 
     @Override
     public void delete(int id) {
+        // Delete zone by id
         repo.deleteById(id);
     }
 
+    /*
+        Helper method to convert Entity -> DTO
+    */
     private ZoneDTO toDTO(Zone zone) {
         return ZoneDTO.builder()
                 .id(zone.getId())
