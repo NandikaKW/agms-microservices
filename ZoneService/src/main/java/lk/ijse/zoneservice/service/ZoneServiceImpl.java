@@ -10,6 +10,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/*
+    This class contains the business logic related to Zone.
+    It also connects with the IoT API when creating a zone.
+*/
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -20,47 +24,59 @@ public class ZoneServiceImpl implements ZoneService {
 
     @Override
     public ZoneDTO save(ZoneDTO dto) {
-        // Business Rule: minTemp must be strictly less than maxTemp
+
+        // Simple validation - minTemp should be less than maxTemp
         if (dto.getMinTemp() >= dto.getMaxTemp()) {
             throw new RuntimeException("minTemp must be strictly less than maxTemp");
         }
 
-        // External Integration: Register Device with IoT API
-        // Step 1: Call IoT API POST /devices
-        // Step 2: Store the returned deviceId
+        /*
+            When creating a zone, I also register a device in IoT system.
+            That API returns a deviceId which I store in my database.
+        */
         String deviceId;
         try {
             deviceId = ioTApiClient.registerDevice(
                     dto.getName() + "-Sensor",
                     "Zone-" + dto.getName()
             );
-            log.info("Device registered with IoT API. DeviceId: {}", deviceId);
+            log.info("Device created in IoT system: {}", deviceId);
+
         } catch (Exception e) {
-            log.error("Failed to register device with IoT API: {}", e.getMessage());
+            // If IoT API fails, I still continue using a temporary id
+            log.error("IoT device creation failed: {}", e.getMessage());
             deviceId = "fallback-" + System.currentTimeMillis();
         }
 
+        // Convert DTO -> Entity
         Zone zone = Zone.builder()
                 .name(dto.getName())
                 .minTemp(dto.getMinTemp())
                 .maxTemp(dto.getMaxTemp())
                 .deviceId(deviceId)
                 .build();
-        
+
         return toDTO(repo.save(zone));
     }
 
     @Override
     public ZoneDTO update(int id, ZoneDTO dto) {
+
+        // Find existing zone
         Zone zone = repo.findById(id).orElseThrow(
                 () -> new RuntimeException("Zone not found with id: " + id)
         );
+
+        // Validation again
         if (dto.getMinTemp() >= dto.getMaxTemp()) {
             throw new RuntimeException("minTemp must be strictly less than maxTemp");
         }
+
+        // Update values
         zone.setName(dto.getName());
         zone.setMinTemp(dto.getMinTemp());
         zone.setMaxTemp(dto.getMaxTemp());
+
         return toDTO(repo.save(zone));
     }
 
