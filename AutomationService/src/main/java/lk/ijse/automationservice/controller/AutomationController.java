@@ -23,6 +23,10 @@ public class AutomationController {
     public List<AutomationLog> logs() {
         return service.getLogs();
     }
+    @GetMapping("/logs/count")
+    public long logsCount() {
+        return service.getLogsCount();
+    }
 
 
 }

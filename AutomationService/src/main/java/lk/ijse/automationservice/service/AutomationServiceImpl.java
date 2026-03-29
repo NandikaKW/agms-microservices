@@ -60,4 +60,8 @@ public class AutomationServiceImpl implements AutomationService {
     public List<AutomationLog> getLogs() {
         return repo.findAllByOrderByTimestampDesc();
     }
+    @Override
+    public long getLogsCount() {
+        return repo.count();
+    }
 }

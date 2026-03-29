@@ -7,4 +7,5 @@ import java.util.List;
 public interface AutomationService {
     void processReading(SensorReadingDTO readingDTO);
     List<AutomationLog> getLogs();
+    long getLogsCount();
 }
