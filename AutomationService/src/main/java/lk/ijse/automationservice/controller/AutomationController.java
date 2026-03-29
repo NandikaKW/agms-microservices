@@ -32,5 +32,14 @@ public class AutomationController {
         return service.getLogsByZone(zoneId);
     }
 
+    @GetMapping("/health")
+    public String health() {
+        return service.healthCheck();
+    }
+    @GetMapping("/logs/recent")
+    public List<AutomationLog> recentLogs(@RequestParam int minutes) {
+        return service.getRecentLogs(minutes);
+    }
+
 
 }

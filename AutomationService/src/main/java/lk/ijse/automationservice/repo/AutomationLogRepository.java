@@ -4,6 +4,7 @@ import lk.ijse.automationservice.entity.AutomationLog;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -11,4 +12,6 @@ public interface AutomationLogRepository extends JpaRepository<AutomationLog, Lo
     List<AutomationLog> findAllByOrderByTimestampDesc();
     long count();
     List<AutomationLog> findByZoneIdOrderByTimestampDesc(String zoneId);
+    List<AutomationLog> findByTimestampAfterOrderByTimestampDesc(LocalDateTime timestamp);
+
 }

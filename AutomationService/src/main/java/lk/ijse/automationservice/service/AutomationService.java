@@ -9,5 +9,8 @@ public interface AutomationService {
     List<AutomationLog> getLogs();
     long getLogsCount();
     List<AutomationLog> getLogsByZone(String zoneId);
+    String healthCheck();
+    List<AutomationLog> getRecentLogs(int minutes);
+
 
 }

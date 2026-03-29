@@ -68,4 +68,13 @@ public class AutomationServiceImpl implements AutomationService {
     public List<AutomationLog> getLogsByZone(String zoneId) {
         return repo.findByZoneIdOrderByTimestampDesc(zoneId);
     }
+    @Override
+    public List<AutomationLog> getRecentLogs(int minutes) {
+        LocalDateTime fromTime = LocalDateTime.now().minusMinutes(minutes);
+        return repo.findByTimestampAfterOrderByTimestampDesc(fromTime);
+    }
+    @Override
+    public String healthCheck() {
+        return "Automation Service is running ✅";
+    }
 }
