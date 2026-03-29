@@ -27,6 +27,10 @@ public class AutomationController {
     public long logsCount() {
         return service.getLogsCount();
     }
+    @GetMapping("/logs/zone/{zoneId}")
+    public List<AutomationLog> logsByZone(@PathVariable String zoneId) {
+        return service.getLogsByZone(zoneId);
+    }
 
 
 }

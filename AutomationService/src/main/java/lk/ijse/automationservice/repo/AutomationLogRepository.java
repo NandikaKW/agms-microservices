@@ -10,4 +10,5 @@ import java.util.List;
 public interface AutomationLogRepository extends JpaRepository<AutomationLog, Long> {
     List<AutomationLog> findAllByOrderByTimestampDesc();
     long count();
+    List<AutomationLog> findByZoneIdOrderByTimestampDesc(String zoneId);
 }

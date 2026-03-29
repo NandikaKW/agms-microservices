@@ -64,4 +64,8 @@ public class AutomationServiceImpl implements AutomationService {
     public long getLogsCount() {
         return repo.count();
     }
+    @Override
+    public List<AutomationLog> getLogsByZone(String zoneId) {
+        return repo.findByZoneIdOrderByTimestampDesc(zoneId);
+    }
 }

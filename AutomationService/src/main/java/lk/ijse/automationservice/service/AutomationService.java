@@ -8,4 +8,6 @@ public interface AutomationService {
     void processReading(SensorReadingDTO readingDTO);
     List<AutomationLog> getLogs();
     long getLogsCount();
+    List<AutomationLog> getLogsByZone(String zoneId);
+
 }
