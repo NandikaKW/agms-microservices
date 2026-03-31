@@ -206,4 +206,13 @@ public class SensorServiceImpl implements SensorService {
                 .average()
                 .orElse(0.0);  // Return 0 if no readings
     }
+
+    @Override
+    public double getAverageHumidity() {
+        return repo.findAll()
+                .stream()
+                .mapToDouble(SensorReading::getHumidity)
+                .average()
+                .orElse(0.0);  // Return 0 if no readings
+    }
 }

@@ -7,4 +7,5 @@ public interface SensorService {
     SensorDTO getLatestReading();
     void fetchAndPushData();
     double getAverageTemperature();
+    double getAverageHumidity();
 }

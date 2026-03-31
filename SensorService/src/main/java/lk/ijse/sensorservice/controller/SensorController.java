@@ -23,4 +23,10 @@ public class SensorController {
     public double getAverageTemperature() {
         return service.getAverageTemperature();
     }
+    //get average humidity
+    @GetMapping("/stats/average-humidity")
+    public double getAverageHumidity() {
+        return service.getAverageHumidity();
+    }
+
 }
