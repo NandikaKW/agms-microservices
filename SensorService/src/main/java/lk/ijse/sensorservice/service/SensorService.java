@@ -8,4 +8,6 @@ public interface SensorService {
     void fetchAndPushData();
     double getAverageTemperature();
     double getAverageHumidity();
+
+    long getTotalReadingsCount();
 }

@@ -29,4 +29,10 @@ public class SensorController {
         return service.getAverageHumidity();
     }
 
+    //get total readings
+    @GetMapping("/stats/total-readings")
+    public long getTotalReadings() {
+        return service.getTotalReadingsCount();
+    }
+
 }

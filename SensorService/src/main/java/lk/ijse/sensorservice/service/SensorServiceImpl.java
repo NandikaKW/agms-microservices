@@ -215,4 +215,9 @@ public class SensorServiceImpl implements SensorService {
                 .average()
                 .orElse(0.0);  // Return 0 if no readings
     }
+
+    @Override
+    public long getTotalReadingsCount() {
+        return repo.count();  // Safe: just counts rows
+    }
 }
