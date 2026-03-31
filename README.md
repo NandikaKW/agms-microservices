@@ -61,15 +61,53 @@ The system integrates with an **external IoT API** to fetch live telemetry (temp
 1. Start MySQL using XAMPP
 2. Default configuration:
 
-   ```
-   Username: root
-   Password: (empty)
-   ```
+```
+Username: root  
+Password: (empty)
+```
+
 3. Database will be auto-created:
 
-   ```
-   AGMS_Db
-   ```
+```
+AGMS_Db
+```
+
+---
+
+## **⚙️ Configuration (Example: zone-service.yml)**
+
+```yaml
+server:
+  port: 8081
+
+spring:
+  application:
+    name: zone-service
+  config:
+    import: optional:configserver:http://localhost:8888
+  datasource:
+    url: jdbc:mysql://localhost:3306/AGMS_Db?createDatabaseIfNotExist=true
+    username: root
+    password: Ijse@1234
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+```
 
 ---
 
@@ -84,7 +122,7 @@ Services must be started in the correct order due to dependencies (Config → Eu
 ```
 
 Wait **2–3 minutes**, then verify:
-👉 [Eureka Dashboard](http://localhost:8761)
+👉 [http://localhost:8761](http://localhost:8761)
 
 ---
 
@@ -105,7 +143,7 @@ Run services in the **exact order below**:
 ## **📊 Eureka Dashboard Verification**
 
 Open:
-👉 [Eureka Dashboard](http://localhost:8761)
+👉 [http://localhost:8761](http://localhost:8761)
 
 Expected status:
 
@@ -118,21 +156,58 @@ Expected status:
 | AUTOMATION-SERVICE | 8083 | UP     |
 | CROP-SERVICE       | 8084 | UP     |
 
-> **Note:** Eureka Server does not register itself by default, so it will not appear in the service list.
+> **Note:** Eureka Server does not register itself by default.
 
 ---
 
 ## **🔄 System Workflow (End-to-End)**
 
 1. 🗺️ Zone Service creates a zone and registers IoT device
+
 2. 🌡️ Sensor Service fetches live data every 10 seconds
+
 3. 🌡️ Sensor Service sends data to Automation Service
+
 4. 🤖 Automation Service fetches thresholds from Zone Service
+
 5. 📊 Rule engine triggers actions:
 
     * Temp > max → **TURN_FAN_ON**
     * Temp < min → **TURN_HEATER_ON**
+
 6. 💾 Logs stored and available via API
+
+---
+
+## **🌡️ Scheduled Sensor Data Flow**
+
+Sensor Service fetches telemetry data from the External IoT API every 10 seconds.
+The data is sent to the Automation Service for rule processing.
+
+### Example Request
+
+```http
+POST /api/automation/process
+```
+
+```json
+{
+  "zoneId": "Zone-A",
+  "temperature": 23.81,
+  "humidity": 55.09
+}
+```
+
+### Rule Processing
+
+* IF temperature > maxTemp → TURN_FAN_ON
+* IF temperature < minTemp → TURN_HEATER_ON
+
+Logs can be retrieved via:
+
+```
+GET /api/automation/logs
+```
 
 ---
 
@@ -162,6 +237,18 @@ Expected status:
 
 ---
 
+## **🌱 Crop Lifecycle Rules**
+
+The Crop Inventory Service enforces the following lifecycle transitions:
+
+* SEEDLING → VEGETATIVE ✅
+* VEGETATIVE → HARVESTED ✅
+* Invalid transitions are rejected ❌ (e.g., HARVESTED → SEEDLING)
+
+This ensures that crop status is always valid and consistent.
+
+---
+
 ## **🔐 Security (JWT)**
 
 * Implemented at API Gateway
@@ -172,6 +259,7 @@ Authorization: Bearer <token>
 ```
 
 * Invalid/missing token → **401 Unauthorized**
+
 * Public endpoints:
 
     * `/auth/login`
@@ -185,7 +273,7 @@ Authorization: Bearer <token>
 
 * Base URL:
 
-```http
+```
 http://104.211.95.241:8080/api
 ```
 
@@ -210,6 +298,17 @@ postman/agms-postman-collection.json
 
 ---
 
+## **📸 Postman Testing Screenshots**
+
+### Successful API Calls
+
+![Postman Testing](docs/postman-testing.png)
+
+### End-to-End System Workflow
+
+![System Workflow](docs/system-workflow.png)
+
+---
 ## **📁 Project Structure**
 
 ```
