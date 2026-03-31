@@ -18,4 +18,9 @@ public class SensorController {
     public SensorDTO getLatest() {
         return service.getLatestReading();
     }
+    //get average temperature
+    @GetMapping("/stats/average-temperature")
+    public double getAverageTemperature() {
+        return service.getAverageTemperature();
+    }
 }

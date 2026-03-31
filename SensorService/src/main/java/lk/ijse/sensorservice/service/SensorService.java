@@ -6,4 +6,5 @@ import java.util.List;
 public interface SensorService {
     SensorDTO getLatestReading();
     void fetchAndPushData();
+    double getAverageTemperature();
 }

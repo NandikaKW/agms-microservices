@@ -198,4 +198,12 @@ public class SensorServiceImpl implements SensorService {
                 .capturedAt(reading.getCapturedAt())
                 .build();
     }
+    @Override
+    public double getAverageTemperature() {
+        return repo.findAll()
+                .stream()
+                .mapToDouble(SensorReading::getTemperature)
+                .average()
+                .orElse(0.0);  // Return 0 if no readings
+    }
 }
