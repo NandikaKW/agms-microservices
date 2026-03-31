@@ -165,7 +165,7 @@ Expected status:
 
 ### Screenshot
 
-![Eureka Dashboard](docs/eureka-dashboard.png)
+![Eureka Dashboard](docs/Eureka-Dashboard.png)
 
 > **Note:** Eureka Server does not register itself by default.
 
