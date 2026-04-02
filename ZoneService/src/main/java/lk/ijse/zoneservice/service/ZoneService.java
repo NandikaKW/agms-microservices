@@ -12,6 +12,8 @@ public interface ZoneService {
     void delete(int id);
     String checkZoneStatus(int id, double currentTemp);
     List<ZoneDTO> searchByName(String name);
+    List<ZoneDTO> filterByTemperature(double temp);
+
 
 
 }

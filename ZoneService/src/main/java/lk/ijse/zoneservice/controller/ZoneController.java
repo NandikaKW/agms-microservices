@@ -70,6 +70,11 @@ public class ZoneController {
     public List<ZoneDTO> search(@RequestParam String name) {
         return service.searchByName(name);
     }
+    @GetMapping("/filter")
+    public List<ZoneDTO> filter(@RequestParam double temp) {
+        return service.filterByTemperature(temp);
+    }
+
 
 
 }

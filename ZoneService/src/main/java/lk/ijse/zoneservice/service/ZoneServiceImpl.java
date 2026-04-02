@@ -136,5 +136,14 @@ public class ZoneServiceImpl implements ZoneService {
                 .toList();
     }
 
+    @Override
+    public List<ZoneDTO> filterByTemperature(double temp) {
+        return repo.findByMinTempLessThanEqualAndMaxTempGreaterThanEqual(temp, temp)
+                .stream()
+                .map(this::toDTO)
+                .toList();
+    }
+
+
 
 }
