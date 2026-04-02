@@ -59,4 +59,11 @@ public class ZoneController {
     public void delete(@PathVariable int id) {
         service.delete(id);
     }
+
+    @GetMapping("/{id}/status")
+    public String checkStatus(@PathVariable int id,
+                              @RequestParam double temp) {
+        return service.checkZoneStatus(id, temp);
+    }
+
 }

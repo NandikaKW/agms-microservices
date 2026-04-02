@@ -112,4 +112,21 @@ public class ZoneServiceImpl implements ZoneService {
                 .deviceId(zone.getDeviceId())
                 .build();
     }
+
+    @Override
+    public String checkZoneStatus(int id, double currentTemp) {
+
+        Zone zone = repo.findById(id).orElseThrow(
+                () -> new RuntimeException("Zone not found")
+        );
+
+        if (currentTemp > zone.getMaxTemp()) {
+            return "TOO HOT - Fan should be ON";
+        } else if (currentTemp < zone.getMinTemp()) {
+            return "TOO COLD - Heater should be ON";
+        } else {
+            return "NORMAL - Conditions are stable";
+        }
+    }
+
 }

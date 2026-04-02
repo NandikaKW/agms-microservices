@@ -10,4 +10,6 @@ public interface ZoneService {
     List<ZoneDTO> getAll();
     ZoneDTO getById(int id);
     void delete(int id);
+    String checkZoneStatus(int id, double currentTemp);
+
 }
