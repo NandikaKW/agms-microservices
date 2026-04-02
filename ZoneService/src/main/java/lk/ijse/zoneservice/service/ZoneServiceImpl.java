@@ -128,5 +128,13 @@ public class ZoneServiceImpl implements ZoneService {
             return "NORMAL - Conditions are stable";
         }
     }
+    @Override
+    public List<ZoneDTO> searchByName(String name) {
+        return repo.findByNameContainingIgnoreCase(name)
+                .stream()
+                .map(this::toDTO)
+                .toList();
+    }
+
 
 }

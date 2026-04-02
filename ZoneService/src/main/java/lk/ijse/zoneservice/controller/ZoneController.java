@@ -66,4 +66,10 @@ public class ZoneController {
         return service.checkZoneStatus(id, temp);
     }
 
+    @GetMapping("/search")
+    public List<ZoneDTO> search(@RequestParam String name) {
+        return service.searchByName(name);
+    }
+
+
 }
