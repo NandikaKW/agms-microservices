@@ -13,6 +13,8 @@ public interface ZoneService {
     String checkZoneStatus(int id, double currentTemp);
     List<ZoneDTO> searchByName(String name);
     List<ZoneDTO> filterByTemperature(double temp);
+    List<String> getAllDeviceIds();
+
 
 
 

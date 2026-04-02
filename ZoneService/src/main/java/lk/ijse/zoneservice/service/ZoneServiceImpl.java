@@ -143,6 +143,14 @@ public class ZoneServiceImpl implements ZoneService {
                 .map(this::toDTO)
                 .toList();
     }
+    @Override
+    public List<String> getAllDeviceIds() {
+        return repo.findAll()
+                .stream()
+                .map(Zone::getDeviceId)
+                .toList();
+    }
+
 
 
 

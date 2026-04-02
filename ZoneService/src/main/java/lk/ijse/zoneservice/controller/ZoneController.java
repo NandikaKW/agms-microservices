@@ -75,6 +75,12 @@ public class ZoneController {
         return service.filterByTemperature(temp);
     }
 
+    @GetMapping("/devices")
+    public List<String> getDevices() {
+        return service.getAllDeviceIds();
+    }
+
+
 
 
 }
