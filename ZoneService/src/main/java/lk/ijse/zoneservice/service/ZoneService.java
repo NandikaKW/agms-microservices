@@ -14,6 +14,8 @@ public interface ZoneService {
     List<ZoneDTO> searchByName(String name);
     List<ZoneDTO> filterByTemperature(double temp);
     List<String> getAllDeviceIds();
+    long countZones();
+
 
 
 

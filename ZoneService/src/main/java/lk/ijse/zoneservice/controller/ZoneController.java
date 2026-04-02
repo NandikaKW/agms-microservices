@@ -80,6 +80,12 @@ public class ZoneController {
         return service.getAllDeviceIds();
     }
 
+    @GetMapping("/count")
+    public long count() {
+        return service.countZones();
+    }
+
+
 
 
 

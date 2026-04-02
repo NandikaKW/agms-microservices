@@ -150,6 +150,11 @@ public class ZoneServiceImpl implements ZoneService {
                 .map(Zone::getDeviceId)
                 .toList();
     }
+    @Override
+    public long countZones() {
+        return repo.count();
+    }
+
 
 
 
